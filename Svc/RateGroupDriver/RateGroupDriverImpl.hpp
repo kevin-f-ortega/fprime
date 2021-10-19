@@ -33,6 +33,19 @@ namespace Svc {
     class RateGroupDriverImpl : public RateGroupDriverComponentBase {
 
         public:
+typedef struct
+{
+  TimerVal start;
+  TimerVal end;
+  TimerVal isr_start;
+  uint32_t cycle;
+} times;
+
+#define RATE_GROUP_NUM 4
+#define SEC_DURATION 10
+#define MAX_RATE 512 /* 512Hz */
+#define MAX_LOOP (MAX_RATE * SEC_DURATION)
+#define CYCLE_SLIP_THRESHOLD (1000000 / MAX_RATE) /* usecs in 1 second divided by max rate. This is how much usecs */
 
             //!  \brief RateGroupDriverImpl constructor
             //!
@@ -56,6 +69,8 @@ namespace Svc {
 
             ~RateGroupDriverImpl(void);
 
+            void print_elapsed_times(times *elapsed_time, const uint32_t len, const uint32_t threshold);
+
         PRIVATE:
 
             //! downcall for input port
@@ -72,6 +87,8 @@ namespace Svc {
         public:
             //! Size of the divider table, provided as a constants to users passing the table in
             static const NATIVE_UINT_TYPE DIVIDER_SIZE = NUM_CYCLEOUT_OUTPUT_PORTS;
+	    times elapsed_times[MAX_LOOP];
+	    U32 interrupt_counter;
     };
 
 }
