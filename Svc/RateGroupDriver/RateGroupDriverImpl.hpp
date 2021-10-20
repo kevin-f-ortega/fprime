@@ -38,11 +38,11 @@ typedef struct
   TimerVal start;
   TimerVal end;
   TimerVal isr_start;
-  uint32_t cycle;
+  U32 cycle;
 } times;
 
 #define RATE_GROUP_NUM 4
-#define SEC_DURATION 10
+#define SEC_DURATION 300
 #define MAX_RATE 512 /* 512Hz */
 #define MAX_LOOP (MAX_RATE * SEC_DURATION)
 #define CYCLE_SLIP_THRESHOLD (1000000 / MAX_RATE) /* usecs in 1 second divided by max rate. This is how much usecs */
@@ -69,7 +69,7 @@ typedef struct
 
             ~RateGroupDriverImpl(void);
 
-            void print_elapsed_times(times *elapsed_time, const uint32_t len, const uint32_t threshold);
+            void print_elapsed_times(times *elapsed_time, const U32 len, const U32 threshold);
 
         PRIVATE:
 

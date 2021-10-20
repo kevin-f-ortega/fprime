@@ -45,20 +45,20 @@ namespace Svc {
         RateGroupDriverComponentBase::init();
     }
 
-    void RateGroupDriverImpl::print_elapsed_times(times *elapsed_time, const uint32_t len, const uint32_t threshold)
+    void RateGroupDriverImpl::print_elapsed_times(times *elapsed_time, const U32 len, const U32 threshold)
 {
   FW_ASSERT(elapsed_time);
   FW_ASSERT(len > 0);
-  uint32_t highest_usec = 0;
-  uint32_t lowest_usec = threshold;
-  uint32_t average_usec = 0;
-  uint32_t average_isr_usec = 0;
-  uint32_t isr_out_of_bounds = 0;
-  uint32_t isr_out_of_bounds_0 = 0;
-  uint32_t slipped = 0;
-  uint32_t skipped = 0;
+  U32 highest_usec = 0;
+  U32 lowest_usec = threshold;
+  U32 average_usec = 0;
+  U32 average_isr_usec = 0;
+  U32 isr_out_of_bounds = 0;
+  U32 isr_out_of_bounds_zero = 0;
+  U32 slipped = 0;
+  U32 skipped = 0;
 
-  for(uint32_t i = 0; i < len; i++)
+  for(U32 i = 0; i < len; i++)
   {
     if(elapsed_time[i].cycle == 0)
     {
@@ -69,10 +69,10 @@ namespace Svc {
 
     if(i < len)
     {
-      uint32_t delta_isr_usec = 100;
+      U32 delta_isr_usec = 100;
 	    Os::IntervalTimer::RawTime isr1 = elapsed_time[i].isr_start.getTimerVal();
 	    Os::IntervalTimer::RawTime isr2 = elapsed_time[i+1].isr_start.getTimerVal();
-      uint32_t diff_isr = Os::IntervalTimer::getDiffUsec(isr2, isr1);
+      U32 diff_isr = Os::IntervalTimer::getDiffUsec(isr2, isr1);
       if(diff_isr > (threshold + delta_isr_usec) ||
          diff_isr < (threshold - delta_isr_usec))
       {
@@ -81,17 +81,17 @@ namespace Svc {
 	      //Os::IntervalTimer::RawTime isr2 = elapsed_time[i+1].start.getTimerVal();
         printf("ISR1 counter %u time is %u.%u\n", i, isr1.upper, isr1.lower);
         printf("ISR2 counter %u time is %u.%u\n", i+1, isr2.upper, isr2.lower);
-        printf("ISR Diff time is %u usecs\n", diff_isr);
 #endif
+        if(diff_isr == 0) { isr_out_of_bounds_zero++; }
+        Fw::Logger::logMsg("ISR %u Diff time is %u usecs\n", i, diff_isr);
         isr_out_of_bounds++;
-        if(diff_isr == 0) { isr_out_of_bounds_0++; }
       }
       average_isr_usec += diff_isr;
     }
 
     Os::IntervalTimer::RawTime endtime = elapsed_time[i].end.getTimerVal();
     Os::IntervalTimer::RawTime starttime = elapsed_time[i].start.getTimerVal();
-    uint32_t diff_usecs = Os::IntervalTimer::getDiffUsec(endtime, starttime);
+    U32 diff_usecs = Os::IntervalTimer::getDiffUsec(endtime, starttime);
     if(diff_usecs > threshold)
     {
 #if 0
@@ -110,7 +110,7 @@ namespace Svc {
   FW_ASSERT(len > skipped);
   average_usec /= (len-skipped);
   printf("number of ISR out of bounds: %u\n", isr_out_of_bounds);
-  printf("number of ISR with 0 diff: %u\n", isr_out_of_bounds_0);
+  printf("number of ISR with 0 diff: %u\n", isr_out_of_bounds_zero);
   printf("number of cycle slips: %u\n", slipped);
   printf("highest duration: %u usec\n", highest_usec);
   printf("lowest duration : %u usec\n", lowest_usec);
