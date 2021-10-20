@@ -4,7 +4,7 @@
 #include <Fw/Types/Assert.hpp>
 #include <stdio.h>
 
-#include <Fw/Logger/Logger.hpp>
+#include <logLib.h>
 
 namespace Svc {
 
@@ -54,7 +54,6 @@ namespace Svc {
   U32 average_usec = 0;
   U32 average_isr_usec = 0;
   U32 isr_out_of_bounds = 0;
-  U32 isr_out_of_bounds_zero = 0;
   U32 slipped = 0;
   U32 skipped = 0;
 
@@ -63,7 +62,7 @@ namespace Svc {
     if(elapsed_time[i].cycle == 0)
     {
       skipped++;
-      Fw::Logger::logMsg("skipping entry %u\n", i);
+      logMsg("skipping entry %u\n", i, 0,0,0,0,0);
       continue;
     }
 
@@ -82,8 +81,7 @@ namespace Svc {
         printf("ISR1 counter %u time is %u.%u\n", i, isr1.upper, isr1.lower);
         printf("ISR2 counter %u time is %u.%u\n", i+1, isr2.upper, isr2.lower);
 #endif
-        if(diff_isr == 0) { isr_out_of_bounds_zero++; }
-        Fw::Logger::logMsg("ISR %u Diff time is %u usecs\n", i, diff_isr);
+        //logMsg("ISR %u Diff time is %u usecs\n", i, diff_isr, 0,0,0,0);
         isr_out_of_bounds++;
       }
       average_isr_usec += diff_isr;
@@ -109,14 +107,13 @@ namespace Svc {
   }
   FW_ASSERT(len > skipped);
   average_usec /= (len-skipped);
-  printf("number of ISR out of bounds: %u\n", isr_out_of_bounds);
-  printf("number of ISR with 0 diff: %u\n", isr_out_of_bounds_zero);
-  printf("number of cycle slips: %u\n", slipped);
-  printf("highest duration: %u usec\n", highest_usec);
-  printf("lowest duration : %u usec\n", lowest_usec);
-  printf("average duration: %u usec\n", average_usec);
-  printf("average isr duration: %u usec\n", average_isr_usec/(len-skipped));
-  printf("skipped         : %u\n", skipped);
+  logMsg("RGD5: number of ISR out of bounds: %u\n", isr_out_of_bounds, 0,0,0,0,0);
+  logMsg("RGD5: number of cycle slips: %u\n", slipped, 0,0,0,0,0);
+  logMsg("RGD5: highest duration: %u usec\n", highest_usec, 0,0,0,0,0);
+  logMsg("RGD5: lowest duration : %u usec\n", lowest_usec, 0,0,0,0,0);
+  logMsg("RGD5: average duration: %u usec\n", average_usec, 0,0,0,0,0);
+  logMsg("RGD5: average isr duration: %u usec\n", average_isr_usec/(len-skipped), 0,0,0,0,0);
+  logMsg("RGD5: skipped         : %u\n", skipped, 0,0,0,0,0);
 }
 
     void RateGroupDriverImpl::CycleIn_handler(NATIVE_INT_TYPE portNum, Svc::TimerVal& cycleStart) {

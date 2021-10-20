@@ -16,6 +16,7 @@
 #define SVC_ACTIVERATEGROUP_IMPL_HPP
 
 #include <Svc/ActiveRateGroup/ActiveRateGroupComponentAc.hpp>
+#include <Svc/RateGroupDriver/RateGroupDriverImpl.hpp>
 
 namespace Svc {
 
@@ -105,6 +106,13 @@ namespace Svc {
             NATIVE_UINT_TYPE m_contexts[NUM_RATEGROUPMEMBEROUT_OUTPUT_PORTS]; //!< Must match number of output ports
             NATIVE_INT_TYPE m_overrunThrottle; //!< throttle value for overrun events
             U32 m_cycleSlips; //!< tracks number of cycle slips
+U32 elapsed_time_usec[MAX_LOOP];
+U32 interrupt_counter;
+U32 average_elapsed_time;
+U32 highest_slip;
+U32 lowest_slip;
+U32 average_slip;
+U32 slip_counter;
     };
 
 }

@@ -42,7 +42,7 @@ typedef struct
 } times;
 
 #define RATE_GROUP_NUM 4
-#define SEC_DURATION 300
+#define SEC_DURATION 30
 #define MAX_RATE 512 /* 512Hz */
 #define MAX_LOOP (MAX_RATE * SEC_DURATION)
 #define CYCLE_SLIP_THRESHOLD (1000000 / MAX_RATE) /* usecs in 1 second divided by max rate. This is how much usecs */
