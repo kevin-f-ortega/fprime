@@ -12,7 +12,6 @@
 #include <Fw/Types/BasicTypes.hpp>
 #include <Fw/Types/Assert.hpp>
 #include <Os/Log.hpp>
-#include <Common/Cfg/FcTlmId.hpp>
 
 namespace Svc {
 
@@ -63,11 +62,11 @@ namespace Svc {
         // check to see if the time has exceeded the previous maximum
         if (cycle_time > this->m_maxTime) {
             this->m_maxTime = cycle_time;
-            this->TlmOut_out(0,Fc::FC_TLM_MAX_CYCLE_TIME,this->m_maxTime);
+            this->tlmWrite_RgMaxTimeUSec(this->m_maxTime);
         }
 
-        this->TlmOut_out(0,Fc::FC_TLM_NUM_CYCLES,this->m_cycles++);
-        this->TlmOut_out(0,Fc::FC_TLM_CYCLE_TIME,cycle_time);
+        this->tlmWrite_Cycles(this->m_cycles++);
+        this->tlmWrite_CycleTimeUSec(cycle_time);
 
     }
 

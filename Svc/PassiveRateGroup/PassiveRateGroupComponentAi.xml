@@ -4,7 +4,8 @@
 <component name="PassiveRateGroup" kind="passive" namespace="Svc">
     <import_port_type>Svc/Sched/SchedPortAi.xml</import_port_type>
     <import_port_type>Svc/Cycle/CyclePortAi.xml</import_port_type>
-    <import_port_type>FC/Common/FcPorts/FcTlmPortAi.xml</import_port_type>
+    <import_port_type>Fw/Tlm/TlmPortAi.xml</import_port_type>
+    <import_dictionary>Svc/PassiveRateGroup/Telemetry.xml</import_dictionary>
     <comment>A rate group passive component with input and output scheduler ports</comment>
     <ports>
         <!-- Input time cycle port -->
@@ -18,12 +19,12 @@
         <port name="RateGroupMemberOut" data_type="Sched" kind="output" max_number="$PassiveRateGroupOutputPorts">
             <comment>Scheduler output port to rate group members</comment>
         </port>
-        
-        <port name="TlmOut" data_type="Fc::FcTlm" kind="output">
+
+        <!-- Output Telemetry port -->
+        <port name="tlmOut" kind="output" data_type="Fw::Tlm" max_number="1" role="Telemetry">
             <comment>Telemetry output</comment>
         </port>
-            
-        
+
     </ports>
 </component>
 
