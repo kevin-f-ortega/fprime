@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--====================================================================== 
+
+  F Prime
+  PassiveRateGroup
+  Telemetry
+
+======================================================================-->
+
+<telemetry telemetry_base="0x00">
+
+  <channel id="0x00" name="RgMaxTimeUSec" data_type="U32" abbrev="P001-000" update="on_change">
+    <comment>Max execution time (in microseconds) rate group</comment>
+  </channel>
+
+  <channel id="0x01" name="Cycles" data_type="U32" abbrev="P001-001">
+    <comment>The total number of cycles</comment>
+  </channel>
+
+  <channel id="0x02" name="CycleTimeUSec" data_type="U32" abbrev="P001-002" update="on_change">
+    <comment>The total time taken (in microseconds) by rate group</comment>
+  </channel>
+
+</telemetry>
