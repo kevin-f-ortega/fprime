@@ -21,7 +21,7 @@
         </port>
 
         <!-- Output Telemetry port -->
-        <port name="tlmOut" kind="output" data_type="Fw::Tlm" max_number="1" role="Telemetry">
+        <port name="Tlm" kind="output" data_type="Fw::Tlm" max_number="1" role="Telemetry">
             <comment>Telemetry output</comment>
         </port>
 
