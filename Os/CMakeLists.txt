@@ -27,7 +27,7 @@ set(MOD_DEPS
 set(SOURCE_FILES
     "${CMAKE_CURRENT_LIST_DIR}/IntervalTimerCommon.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/TaskString.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/TaskCommon.cpp"
+#    "${CMAKE_CURRENT_LIST_DIR}/TaskCommon.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/QueueCommon.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/QueueString.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/IPCQueueCommon.cpp"
@@ -38,6 +38,7 @@ set(SOURCE_FILES
 
     # Refactored common files
     "${CMAKE_CURRENT_LIST_DIR}/File.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/Task.cpp"
 )
 # Check for default logger
 if (NOT FPRIME_DISABLE_DEFAULT_LOGGER)
@@ -53,7 +54,7 @@ if (FPRIME_USE_POSIX)
         "${CMAKE_CURRENT_LIST_DIR}/Pthreads/BufferQueueCommon.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Pthreads/PriorityBufferQueue.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Pthreads/MaxHeap/MaxHeap.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/Posix/Task.cpp"
+#        "${CMAKE_CURRENT_LIST_DIR}/Posix/Task.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Linux/InterruptLock.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Linux/WatchdogTimer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Posix/IntervalTimer.cpp"
