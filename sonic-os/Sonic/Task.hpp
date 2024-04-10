@@ -5,6 +5,7 @@
 #ifndef Os_Sonic_Task_hpp_
 #define Os_Sonic_Task_hpp_
 
+#include <pthread.h>
 #include <Os/Task.hpp>
 
 #include <FpConfig.hpp>
@@ -13,7 +14,6 @@
 #include <Os/TaskString.hpp>
 
 #include <Fw/Deprecate.hpp>
-#include <Os/TaskId.hpp>
 
 namespace Os {
 namespace Sonic {

@@ -38,7 +38,7 @@ Os::Task::Status TaskInterface::delay(Fw::Time interval) {
     return task_status;
 }
 
-TaskInterface* TaskInterface::getDelegate(U8* aligned_new_memory) {
+TaskInterface* TaskInterface::getDelegate(HandleStorage& aligned_new_memory) {
     return Os::Delegate::makeDelegate<TaskInterface, Os::Sonic::Task::SonicTask>(aligned_new_memory);
 }
 
