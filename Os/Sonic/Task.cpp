@@ -1,0 +1,210 @@
+// ======================================================================
+// \title Os/Sonic/Task.cpp
+// \brief implementation of Sonic implementation of Os::Task
+// ======================================================================
+#include <pthread.h>
+#include <unistd.h>
+#include <cerrno>
+#include <climits>
+#include <cstring>
+
+#include "Fw/Logger/Logger.hpp"
+#include "Fw/Types/Assert.hpp"
+#include "Os/Sonic/Task.hpp"
+#include "Os/Sonic/error.hpp"
+#include "Os/Task.hpp"
+
+namespace Os {
+namespace Sonic {
+namespace Task {
+bool SonicTask::s_permissions_reported = false;
+static const PlatformIntType SCHED_POLICY = SCHED_RR;
+
+typedef void* (*pthread_func_ptr)(void*);
+
+void* pthread_entry_wrapper(void* wrapper_pointer) {
+    FW_ASSERT(wrapper_pointer != nullptr);
+    Os::Task::TaskRoutineWrapper& wrapper = *reinterpret_cast<Os::Task::TaskRoutineWrapper*>(wrapper_pointer);
+    wrapper.run(&wrapper);
+    return nullptr;
+}
+
+PlatformIntType set_stack_size(pthread_attr_t& attributes, const Os::Task::Arguments& arguments) {
+    PlatformIntType status = SonicTaskHandle::SUCCESS;
+    FwSizeType stack = arguments.m_stackSize;
+    // Check for stack size multiple of page size
+    long page_size = sysconf(_SC_PAGESIZE);
+    if (stack % page_size) {
+        // Round-down to nearest page size multiple
+        FwSizeType rounded = (stack / page_size) * page_size;
+        Fw::Logger::logMsg("[WARNING] %s stack size of %" PRI_FwSizeType
+                           " is not multiple of page size %ld, rounding to %" PRI_FwSizeType "\n",
+                           reinterpret_cast<PlatformPointerCastType>(const_cast<CHAR*>(arguments.m_name.toChar())),
+                           stack, page_size, rounded);
+        stack = rounded;
+    }
+
+    // Clamp invalid stack sizes
+    if (stack <= PTHREAD_STACK_MIN) {
+        Fw::Logger::logMsg("[WARNING] %s stack size of %" PRI_FwSizeType "  is too small, clamping to %" PRI_FwSizeType
+                           "\n",
+                           reinterpret_cast<PlatformPointerCastType>(const_cast<CHAR*>(arguments.m_name.toChar())),
+                           stack, static_cast<FwSizeType>(PTHREAD_STACK_MIN));
+        stack = PTHREAD_STACK_MIN;
+    }
+    status = pthread_attr_setstacksize(&attributes, static_cast<PlatformIntType>(stack));
+    return status;
+}
+
+PlatformIntType set_priority_params(pthread_attr_t& attributes, const Os::Task::Arguments& arguments) {
+    const FwSizeType min_priority = static_cast<FwSizeType>(sched_get_priority_min(SCHED_POLICY));
+    const FwSizeType max_priority = static_cast<FwSizeType>(sched_get_priority_max(SCHED_POLICY));
+    PlatformIntType status = SonicTaskHandle::SUCCESS;
+    FwSizeType priority = arguments.m_priority;
+    // Clamp to minimum priority
+    if (priority < min_priority) {
+        Fw::Logger::logMsg("[WARNING] %s low task priority of %" PRI_FwSizeType " clamped to %" PRI_FwSizeType "\n",
+                           reinterpret_cast<PlatformPointerCastType>(const_cast<CHAR*>(arguments.m_name.toChar())),
+                           priority, min_priority);
+        priority = min_priority;
+    }
+    // Clamp to maximum priority
+    else if (priority > max_priority) {
+        Fw::Logger::logMsg("[WARNING] %s high task priority of %" PRI_FwSizeType " clamped to %" PRI_FwSizeType "\n",
+                           reinterpret_cast<PlatformPointerCastType>(const_cast<CHAR*>(arguments.m_name.toChar())),
+                           priority, max_priority);
+        priority = max_priority;
+    }
+
+    // Set attributes required for priority
+    status = pthread_attr_setschedpolicy(&attributes, SCHED_POLICY);
+    if (status == SonicTaskHandle::SUCCESS) {
+        status = pthread_attr_setinheritsched(&attributes, PTHREAD_EXPLICIT_SCHED);
+    }
+    if (status == SonicTaskHandle::SUCCESS) {
+        sched_param schedParam;
+        memset(&schedParam, 0, sizeof(sched_param));
+        schedParam.sched_priority = priority;
+        status = pthread_attr_setschedparam(&attributes, &schedParam);
+    }
+    return status;
+}
+
+PlatformIntType set_cpu_affinity(pthread_attr_t& attributes, const Os::Task::Arguments& arguments) {
+    PlatformIntType status = 0;
+    const FwIndexType affinity = arguments.m_cpuAffinity;
+
+// Feature set check for _GNU_SOURCE before using GNU only features
+#ifdef _GNU_SOURCE
+    cpu_set_t cpu_set;
+    CPU_ZERO(&cpu_set);
+    CPU_SET(affinity, &cpu_set);
+
+    // According to the man-page this function sets errno rather than returning an error status like other functions
+    status = pthread_attr_setaffinity_np(&attributes, sizeof(cpu_set_t), &cpu_set);
+    status = (status == SonicTaskHandle::SUCCESS) ? status : errno;
+#else
+    Fw::Logger::logMsg("[WARNING] %s setting CPU affinity is only available with GNU pthreads\n",
+                       reinterpret_cast<PlatformPointerCastType>(const_cast<CHAR*>(arguments.m_name.toChar())));
+#endif
+    return status;
+}
+
+Os::Task::Status SonicTask::create(const Os::Task::Arguments& arguments,
+                                   const SonicTask::PermissionExpectation permissions) {
+    Os::Task::Status status = Os::Task::OP_OK;
+    PlatformIntType pthread_status = SonicTaskHandle::SUCCESS;
+    SonicTaskHandle& handle = this->m_handle;
+    const bool expect_permission = (permissions == EXPECT_PERMISSION);
+    // Initialize and clear pthread attributes
+    pthread_attr_t attributes;
+    memset(&attributes, 0, sizeof(attributes));
+    pthread_status = pthread_attr_init(&attributes);
+    if ((arguments.m_stackSize != Os::Task::TASK_DEFAULT) && (expect_permission) &&
+        (pthread_status == SonicTaskHandle::SUCCESS)) {
+        pthread_status = set_stack_size(attributes, arguments);
+    }
+    if ((arguments.m_priority != Os::Task::TASK_DEFAULT) && (expect_permission) &&
+        (pthread_status == SonicTaskHandle::SUCCESS)) {
+        pthread_status = set_priority_params(attributes, arguments);
+    }
+    if ((arguments.m_cpuAffinity != Os::Task::TASK_DEFAULT) && (expect_permission) &&
+        (pthread_status == SonicTaskHandle::SUCCESS)) {
+        pthread_status = set_cpu_affinity(attributes, arguments);
+    }
+    if (pthread_status == SonicTaskHandle::SUCCESS) {
+        pthread_status =
+            pthread_create(&handle.m_task_descriptor, &attributes, pthread_entry_wrapper, arguments.m_routine_argument);
+    }
+    // Successful execution of all precious steps will result in a valid task handle
+    if (pthread_status == SonicTaskHandle::SUCCESS) {
+        handle.m_is_valid = true;
+    }
+
+    (void)pthread_attr_destroy(&attributes);
+    return Sonic::sonic_status_to_task_status(pthread_status);
+}
+
+void SonicTask::onStart() {}
+
+Os::Task::Status SonicTask::start(const Arguments& arguments) {
+    FW_ASSERT(arguments.m_routine != nullptr);
+
+    // Try to create thread with assuming permissions
+    Os::Task::Status status = this->create(arguments, PermissionExpectation::EXPECT_PERMISSION);
+    // Failure due to permission automatically retried
+    if (status == Os::Task::Status::ERROR_PERMISSION) {
+        if (not SonicTask::s_permissions_reported) {
+            Fw::Logger::logMsg("\n");
+            Fw::Logger::logMsg("[NOTE] Task Permissions: Sonic\n");
+            Fw::Logger::logMsg("[NOTE]\n");
+            Fw::Logger::logMsg(
+                "[NOTE] You have insufficient permissions to create a task with priority and/or cpu affinity.\n");
+            Fw::Logger::logMsg("[NOTE] A task without priority and affinity will be created.\n");
+            Fw::Logger::logMsg("[NOTE]\n");
+            Fw::Logger::logMsg("[NOTE] There are three possible resolutions:\n");
+            Fw::Logger::logMsg("[NOTE] 1. Use tasks without priority and affinity using parameterless start()\n");
+            Fw::Logger::logMsg("[NOTE] 2. Run this executable as a user with task priority permission\n");
+            Fw::Logger::logMsg("[NOTE] 3. Grant capability with \"setcap 'cap_sys_nice=eip'\" or equivalent\n");
+            Fw::Logger::logMsg("\n");
+            SonicTask::s_permissions_reported = true;
+        }
+        // Fallback with no permission
+        status = this->create(arguments, PermissionExpectation::EXPECT_NO_PERMISSION);
+    } else if (status != Os::Task::Status::OP_OK) {
+        Fw::Logger::logMsg("[ERROR] Failed to create task with status: %d", static_cast<PlatformIntType>(status));
+    }
+    return status;
+}
+
+Os::Task::Status SonicTask::join() {
+    Os::Task::Status status = Os::Task::Status::JOIN_ERROR;
+    if (not this->m_handle.m_is_valid) {
+        status = Os::Task::Status::INVALID_HANDLE;
+    } else {
+        PlatformIntType stat = ::pthread_join(this->m_handle.m_task_descriptor, nullptr);
+        status = (stat == SonicTaskHandle::SUCCESS) ? Os::Task::Status::OP_OK : Os::Task::Status::JOIN_ERROR;
+    }
+    return status;
+}
+
+bool SonicTask::isCooperative() {
+    return false;
+}
+
+TaskHandle* SonicTask::getHandle() {
+    return &this->m_handle;
+}
+
+// Note: not implemented for Sonic threads. Must be manually done using a mutex or other blocking construct as there
+// is no top-level pthreads support for suspend and resume.
+void SonicTask::suspend(Os::Task::SuspensionType suspensionType) {
+    FW_ASSERT(0);
+}
+
+void SonicTask::resume() {
+    FW_ASSERT(0);
+}
+}  // end namespace Task
+}  // end namespace Sonic
+}  // end namespace Os

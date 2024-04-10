@@ -7,6 +7,7 @@
 ####
 add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/Models")
 add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/Stub")
+add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/Sonic")
 add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/Posix")
 
 set(SOURCE_FILES
@@ -70,7 +71,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     "${CMAKE_CURRENT_LIST_DIR}/MacOs/SystemResources.cpp"
   )
 # Linux IPC queues implementation
-elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Sonic")
   list(APPEND SOURCE_FILES
     "${CMAKE_CURRENT_LIST_DIR}/Posix/IPCQueue.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/Posix/LocklessQueue.cpp"
