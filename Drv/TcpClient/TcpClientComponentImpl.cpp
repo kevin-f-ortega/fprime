@@ -11,7 +11,7 @@
 // ======================================================================
 
 #include <Drv/TcpClient/TcpClientComponentImpl.hpp>
-#include "Fw/Types/BasicTypes.hpp"
+#include <FpConfig.hpp>
 #include "Fw/Types/Assert.hpp"
 
 
@@ -22,12 +22,8 @@ namespace Drv {
 // ----------------------------------------------------------------------
 
 TcpClientComponentImpl::TcpClientComponentImpl(const char* const compName)
-    : ByteStreamDriverModelComponentBase(compName),
+    : TcpClientComponentBase(compName),
       SocketReadTask() {}
-
-void TcpClientComponentImpl::init(const NATIVE_INT_TYPE instance) {
-    ByteStreamDriverModelComponentBase::init(instance);
-}
 
 SocketIpStatus TcpClientComponentImpl::configure(const char* hostname,
                                                  const U16 port,
@@ -68,19 +64,15 @@ void TcpClientComponentImpl::connected() {
 
 Drv::SendStatus TcpClientComponentImpl::send_handler(const NATIVE_INT_TYPE portNum, Fw::Buffer& fwBuffer) {
     Drv::SocketIpStatus status = m_socket.send(fwBuffer.getData(), fwBuffer.getSize());
-    // Always return the buffer
-    deallocate_out(0, fwBuffer);
-    if ((status == SOCK_DISCONNECTED) || (status == SOCK_INTERRUPTED_TRY_AGAIN)) {
+    // Only deallocate buffer when the caller is not asked to retry
+    if (status == SOCK_INTERRUPTED_TRY_AGAIN) {
         return SendStatus::SEND_RETRY;
     } else if (status != SOCK_SUCCESS) {
+        deallocate_out(0, fwBuffer);
         return SendStatus::SEND_ERROR;
     }
+    deallocate_out(0, fwBuffer);
     return SendStatus::SEND_OK;
-}
-
-Drv::PollStatus TcpClientComponentImpl::poll_handler(const NATIVE_INT_TYPE portNum, Fw::Buffer& fwBuffer) {
-    FW_ASSERT(0); // It is an error to call this handler on IP drivers
-    return PollStatus::POLL_ERROR;
 }
 
 }  // end namespace Drv

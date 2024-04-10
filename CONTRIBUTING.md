@@ -24,6 +24,15 @@ Specific Ways to Contribute:
 
 Feel free to contribute any way that suits your skills and enjoy.
 
+
+> **Note:** [F´ Autocoder Python](https://github.com/nasa/fprime/tree/master/Autocoders) is being actively replaced
+> by [FPP](https://github.com/fprime-community/fpp). Thus we will no longer accept changes to this code except for
+> security and critical bug fixes done in the most minimal fashion.
+>
+> We do love Python fixes, please consider contributing to
+> [fprime-tools](https://github.com/fprime-community/fprime-tools) or
+> [fprime-gds](https://github.com/fprime-community/fprime-gds)
+
 ## Where to Start
 
 First, contributors should build some understanding of F´. Read through the documentation, try a tutorial, or run a
@@ -108,6 +117,15 @@ the end, these checks must pass for the submission to continue.
 If something seems amiss with one of these checks ask for help on your PR and a maintainer will do their best to help
 get the submission moving forward.
 
+### Automated Checks on Reference Repositories
+
+Some of the above-mentioned automated checks run on reference applications that are not part of the core F´ repository, such as our [tutorial repositories](https://github.com/fprime-community#tutorials). This serves two main purposes: running more tests, and making sure our suite of reference applications and tutorials do not go out-of-date.
+Because of this pattern, users who submit a pull request which introduces breaking changes on _how_ F´ is used in those external repositories will need to submit associated pull requests to introduce a fix on said external repositories. 
+
+The checks are configured to run on the `devel` branch of each external repository, but will prioritize the branch `pr-<PR_NUMBER>` if it exists, with `PR_NUMBER` being the number of the pull request that has been opened in nasa/fprime.
+
+Maintainers will gladly help you in this process.
+
 ## Final Approval and Submission
 
 Once all corrections have been made, automated checks are passing, and a maintainer has given final approval, it is time
@@ -125,7 +143,7 @@ Large submissions are difficult to review. Incredibly large pull requests can be
 to be broken up. Try to keep submissions small, focus on one issue or change in a pull request, and avoid lots of minor
 changes across many files.
 
-Keep in mind that editors that fix whitespace automatically can cause many small changes. Even with advanced Github
+Keep in mind that editors that fix whitespace automatically can cause many small changes. Even with advanced GitHub
 tools this can increase the effort required to review a submission. Be careful with the changes you are submitting.
 
 ## Run Tests

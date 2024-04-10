@@ -11,6 +11,9 @@
 #include <climits>
 #include <Fw/Logger/Logger.hpp>
 
+#ifdef TGT_OS_TYPE_LINUX 
+#include <features.h>
+#endif
 
 static const NATIVE_INT_TYPE SCHED_POLICY = SCHED_RR;
 
@@ -39,11 +42,11 @@ namespace Os {
             Fw::Logger::logMsg("[WARNING] Task priority set and permissions unavailable. Discarding priority.\n");
             priority = Task::TASK_DEFAULT; //Action: use constant
         }
-        if (priority != Task::TASK_DEFAULT and priority < static_cast<NATIVE_UINT_TYPE>(min_priority)) {
+        if (priority != Task::TASK_DEFAULT and priority < static_cast<Task::ParamType>(min_priority)) {
             Fw::Logger::logMsg("[WARNING] Low task priority of %d being clamped to %d\n", priority, min_priority);
             priority = min_priority;
         }
-        if (priority != Task::TASK_DEFAULT and priority > static_cast<NATIVE_UINT_TYPE>(max_priority)) {
+        if (priority != Task::TASK_DEFAULT and priority > static_cast<Task::ParamType>(max_priority)) {
             Fw::Logger::logMsg("[WARNING] High task priority of %d being clamped to %d\n", priority, max_priority);
             priority = max_priority;
         }
@@ -100,7 +103,7 @@ namespace Os {
 
     Task::TaskStatus set_cpu_affinity(pthread_attr_t& att, NATIVE_UINT_TYPE cpuAffinity) {
         if (cpuAffinity != Task::TASK_DEFAULT) {
-#ifdef TGT_OS_TYPE_LINUX
+#if TGT_OS_TYPE_LINUX && __GLIBC__
             cpu_set_t cpuset;
             CPU_ZERO(&cpuset);
             CPU_SET(cpuAffinity, &cpuset);
@@ -111,6 +114,8 @@ namespace Os {
                                    reinterpret_cast<POINTER_CAST>(strerror(stat)));
                 return Task::TASK_INVALID_PARAMS;
             }
+#elif TGT_OS_TYPE_LINUX
+            Fw::Logger::logMsg("[WARNING] Setting CPU affinity is only available on Linux with glibc\n");
 #else
             Fw::Logger::logMsg("[WARNING] Setting CPU affinity is only available on Linux\n");
 #endif
@@ -177,7 +182,6 @@ namespace Os {
         }
         (void)pthread_attr_destroy(&att);
         if (stat != 0) {
-            (void)pthread_join(*tid, nullptr);
             delete tid;
             tid = nullptr;
             Fw::Logger::logMsg("pthread_create: %s. %s\n", reinterpret_cast<POINTER_CAST>(message), reinterpret_cast<POINTER_CAST>(strerror(stat)));
@@ -189,7 +193,7 @@ namespace Os {
     Task::Task() : m_handle(reinterpret_cast<POINTER_CAST>(nullptr)), m_identifier(0), m_affinity(-1), m_started(false), m_suspendedOnPurpose(false), m_routineWrapper() {
     }
 
-    Task::TaskStatus Task::start(const Fw::StringBase &name, taskRoutine routine, void* arg, NATIVE_UINT_TYPE priority, NATIVE_UINT_TYPE stackSize,  NATIVE_UINT_TYPE cpuAffinity, NATIVE_UINT_TYPE identifier) {
+    Task::TaskStatus Task::start(const Fw::StringBase &name, taskRoutine routine, void* arg, ParamType priority, ParamType stackSize,  ParamType cpuAffinity, ParamType identifier) {
         FW_ASSERT(routine);
 
         this->m_name = "TP_";

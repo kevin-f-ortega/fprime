@@ -12,7 +12,7 @@
 
 
 #include <Svc/BufferManager/BufferManagerComponentImpl.hpp>
-#include <Fw/Types/BasicTypes.hpp>
+#include <FpConfig.hpp>
 #include <Fw/Types/Assert.hpp>
 #include <Fw/Buffer/Buffer.hpp>
 #include <new>
@@ -53,7 +53,9 @@ namespace Svc {
   BufferManagerComponentImpl ::
     ~BufferManagerComponentImpl()
   {
-      this->cleanup();
+      if (m_setup) {
+          this->cleanup();
+      }
   }
 
   void BufferManagerComponentImpl ::
@@ -217,7 +219,7 @@ namespace Svc {
   void BufferManagerComponentImpl ::
     schedIn_handler(
         const NATIVE_INT_TYPE portNum,
-        NATIVE_UINT_TYPE context
+        U32 context
     )
   {
     // write telemetry values

@@ -13,7 +13,7 @@
 #ifndef Fw_SerialBuffer_HPP
 #define Fw_SerialBuffer_HPP
 
-#include "Fw/Types/BasicTypes.hpp"
+#include <FpConfig.hpp>
 #include "Fw/Types/Serializable.hpp"
 
 namespace Fw {
@@ -78,10 +78,10 @@ namespace Fw {
       // ----------------------------------------------------------------------
 
       //! The data
-      U8 *const data;
+      U8 *const m_data;
 
       //! The capacity
-      const U32 capacity;
+      const U32 m_capacity;
 
   };
 

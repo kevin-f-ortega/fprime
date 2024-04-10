@@ -11,7 +11,7 @@
 // ======================================================================
 
 #include <Svc/Health/HealthComponentImpl.hpp>
-#include "Fw/Types/BasicTypes.hpp"
+#include <FpConfig.hpp>
 #include <Fw/Types/Assert.hpp>
 
 namespace Svc {
@@ -82,7 +82,7 @@ namespace Svc {
 
     }
 
-    void HealthImpl::Run_handler(const NATIVE_INT_TYPE portNum, NATIVE_UINT_TYPE context) {
+    void HealthImpl::Run_handler(const NATIVE_INT_TYPE portNum, U32 context) {
         //dispatch messages
         for (NATIVE_UINT_TYPE i = 0; i < this->queue_depth; i++) {
             MsgDispatchStatus stat = this->doDispatch();
@@ -165,12 +165,6 @@ namespace Svc {
             return;
         }
 
-        // check enable value
-        if (enable != Fw::Enabled::DISABLED && enable != Fw::Enabled::ENABLED) {
-            this->cmdResponse_out(opCode,cmdSeq,Fw::CmdResponse::VALIDATION_ERROR);
-            return;
-        }
-
         this->m_pingTrackerEntries[entryIndex].enabled = enable.e;
         Fw::Enabled isEnabled(Fw::Enabled::DISABLED);
         if (enable == Fw::Enabled::ENABLED) {
@@ -206,7 +200,7 @@ namespace Svc {
         this->cmdResponse_out(opCode,cmdSeq,Fw::CmdResponse::OK);
     }
 
-    NATIVE_INT_TYPE HealthImpl::findEntry(Fw::CmdStringArg entry) {
+    NATIVE_INT_TYPE HealthImpl::findEntry(const Fw::CmdStringArg& entry) {
 
         // walk through entries
         for (NATIVE_UINT_TYPE tableEntry = 0; tableEntry < NUM_PINGSEND_OUTPUT_PORTS; tableEntry++) {

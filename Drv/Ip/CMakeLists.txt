@@ -1,7 +1,7 @@
 ####
 # F prime CMakeLists.txt:
 #
-# SOURCE_FILES: combined list of source and autocoding diles
+# SOURCE_FILES: combined list of source and autocoding files
 # MOD_DEPS: (optional) module dependencies
 #
 ####
@@ -27,7 +27,7 @@ if (BUILD_TESTING)
 		"${CMAKE_CURRENT_LIST_DIR}/test/ut/SocketTestHelper.cpp")
 	target_include_directories(PortSelector PUBLIC
 			"${FPRIME_FRAMEWORK_PATH}/STest"
-			"${FPRIME_FRAMEWORK_PATH}/gtest/googletest-src/googletest/include"
+			"${FPRIME_FRAMEWORK_PATH}/googletest/googletest/include"
 	)
 	add_dependencies(PortSelector STest Fw_Buffer)
 	target_link_libraries(PortSelector STest Fw_Buffer)

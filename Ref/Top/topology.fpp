@@ -28,7 +28,7 @@ module Ref {
     instance SG4
     instance SG5
     instance blockDrv
-    instance chanTlm
+    instance tlmSend
     instance cmdDisp
     instance cmdSeq
     instance comm
@@ -40,7 +40,7 @@ module Ref {
     instance fileManager
     instance fileUplink
     instance fileUplinkBufferManager
-    instance linuxTime
+    instance posixTime
     instance pingRcvr
     instance prmDb
     instance rateGroup1Comp
@@ -51,6 +51,7 @@ module Ref {
     instance sendBuffComp
     instance staticMemory
     instance textLogger
+    instance typeDemo
     instance uplink
     instance systemResources
 
@@ -64,11 +65,11 @@ module Ref {
 
     param connections instance prmDb
 
-    telemetry connections instance chanTlm
+    telemetry connections instance tlmSend
 
     text event connections instance textLogger
 
-    time connections instance linuxTime
+    time connections instance posixTime
 
     health connections instance $health
 
@@ -78,12 +79,12 @@ module Ref {
 
     connections Downlink {
 
-      chanTlm.PktSend -> downlink.comIn
+      tlmSend.PktSend -> downlink.comIn
       eventLogger.PktSend -> downlink.comIn
       fileDownlink.bufferSendOut -> downlink.bufferIn
 
       downlink.framedAllocate -> staticMemory.bufferAllocate[Ports_StaticMemory.downlink]
-      downlink.framedOut -> comm.send
+      downlink.framedOut -> comm.$send
       downlink.bufferDeallocate -> fileDownlink.bufferReturn
 
       comm.deallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.downlink]
@@ -103,7 +104,7 @@ module Ref {
       rateGroupDriverComp.CycleOut[Ports_RateGroups.rateGroup1] -> rateGroup1Comp.CycleIn
       rateGroup1Comp.RateGroupMemberOut[0] -> SG1.schedIn
       rateGroup1Comp.RateGroupMemberOut[1] -> SG2.schedIn
-      rateGroup1Comp.RateGroupMemberOut[2] -> chanTlm.Run
+      rateGroup1Comp.RateGroupMemberOut[2] -> tlmSend.Run
       rateGroup1Comp.RateGroupMemberOut[3] -> fileDownlink.Run
       rateGroup1Comp.RateGroupMemberOut[4] -> systemResources.run
 
