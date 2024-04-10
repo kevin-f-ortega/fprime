@@ -4,8 +4,8 @@
 // ======================================================================
 #include <cerrno>
 #include "Os/Delegate.hpp"
-#include "Os/Sonic/Task.hpp"
 #include "Os/Task.hpp"
+#include "sonic-os/Sonic/Task.hpp"
 
 namespace Os {
 Os::Task::Status TaskInterface::delay(Fw::Time interval) {

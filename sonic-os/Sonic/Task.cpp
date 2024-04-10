@@ -10,9 +10,9 @@
 
 #include "Fw/Logger/Logger.hpp"
 #include "Fw/Types/Assert.hpp"
-#include "Os/Sonic/Task.hpp"
-#include "Os/Sonic/error.hpp"
 #include "Os/Task.hpp"
+#include "sonic-os/Sonic/Task.hpp"
+#include "sonic-os/Sonic/error.hpp"
 
 namespace Os {
 namespace Sonic {

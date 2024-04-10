@@ -2,7 +2,7 @@
 // \title Os/Sonic/error.cpp
 // \brief implementation for sonic errno conversion
 // ======================================================================
-#include "Os/Sonic/error.hpp"
+#include "sonic-os/Sonic/error.hpp"
 #include <cerrno>
 
 namespace Os {
