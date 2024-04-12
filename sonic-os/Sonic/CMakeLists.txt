@@ -28,3 +28,16 @@ set(HEADER_FILES
 set(MOD_DEPS Os_Sonic_Shared Fw/Time Os)
 register_fprime_module(Os_Task_Sonic)
 register_fprime_implementation(Os/Task Os_Task_Sonic "${CMAKE_CURRENT_LIST_DIR}/DefaultTask.cpp")
+
+#### Os/Task/Sonic Unit Tests ####
+set(UT_SOURCE_FILES
+        "${FPRIME_FRAMEWORK_PATH}/Os/test/ut/task/CommonTests.cpp"
+        "${FPRIME_FRAMEWORK_PATH}/Os/test/ut/task/TaskRules.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/test/ut/SonicTaskTests.cpp"
+)
+set(UT_MOD_DEPS
+        Os
+        STest
+)
+choose_fprime_implementation(Os/Task Os_Task_Sonic)
+register_fprime_ut(SonicTaskTest)
