@@ -16,7 +16,7 @@ add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/LinuxI2cDriver/")
 add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/StreamCrossover/")
 
 # IP Socket is only supported for Linux, Darwin, VxWorks
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR ${CMAKE_SYSTEM_NAME} STREQUAL "VxWorks" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Sonic")
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR ${CMAKE_SYSTEM_NAME} STREQUAL "VxWorks" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Sonic" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Magnetite")
 	add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/Ip/")
 	add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/TcpClient/")
 	add_fprime_subdirectory("${CMAKE_CURRENT_LIST_DIR}/TcpServer/")

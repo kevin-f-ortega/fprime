@@ -71,7 +71,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     "${CMAKE_CURRENT_LIST_DIR}/MacOs/SystemResources.cpp"
   )
 # Linux IPC queues implementation
-elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Sonic")
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Sonic" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Magnetite")
   list(APPEND SOURCE_FILES
     "${CMAKE_CURRENT_LIST_DIR}/Posix/IPCQueue.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/Posix/LocklessQueue.cpp"
