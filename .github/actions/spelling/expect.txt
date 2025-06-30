@@ -357,6 +357,7 @@ jenkins
 jenkinsci
 Joaquim
 jobrestrictions
+journalctl
 jpl
 jplffs
 jre
@@ -367,6 +368,7 @@ lammertbies
 LASTLOG
 LBLOCK
 LCHILD
+ledblinker
 leisher
 lestarch
 lflag
@@ -516,6 +518,7 @@ PRMDBIMPL
 PRMDBIMPLTESTERCFG
 PRMDBLIMPLCFG
 PRMDBTESTER
+PRMLEDINITSTATE
 PROCBUFFERSENDOUT
 PRODUCTGETIN
 PRODUCTREQUESTIN
@@ -592,6 +595,7 @@ SETLOGGING
 setprotocol
 setschedparam
 setschedpolicy
+setser
 setstacksize
 settime
 sev
@@ -713,6 +717,7 @@ UNEXP
 unistd
 UNITTESTASSERT
 unittests
+urhs
 useconds
 usecs
 valgrind
