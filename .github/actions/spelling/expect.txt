@@ -417,6 +417,7 @@ mman
 MMAPALLOCATOR
 MML
 modbus
+moisesmata
 MOVEFILE
 Mpu
 msc
@@ -518,7 +519,6 @@ PRMDBIMPL
 PRMDBIMPLTESTERCFG
 PRMDBLIMPLCFG
 PRMDBTESTER
-PRMLEDINITSTATE
 PROCBUFFERSENDOUT
 PRODUCTGETIN
 PRODUCTREQUESTIN
@@ -533,6 +533,7 @@ projectnumber
 propget
 propput
 protothreading
+psutil
 ptbool
 ptf
 pthread
@@ -704,6 +705,7 @@ tparam
 TPP
 trinomials
 tts
+typedef'ed
 typedef
 typedef'ed
 uart
@@ -717,7 +719,6 @@ UNEXP
 unistd
 UNITTESTASSERT
 unittests
-urhs
 useconds
 usecs
 valgrind
