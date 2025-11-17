@@ -1,0 +1,70 @@
+# Cross-compile https://github.com/fprime-community/fprime-sensors-reference
+
+name: "External Repo: Soak Testing F Prime Sensors Reference (RPI5)"
+
+on:
+  release:
+    types: [published] # triggers when a release is published
+  push:
+    branches: [ devel, release/**, soak-testing ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ devel, release/** ]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.github/actions/spelling/**'
+      - '.github/ISSUE_TEMPLATE/**'
+
+# Cancel in-progress runs if a newer run is started on a given PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ !contains(github.ref, 'devel') && !contains(github.ref, 'release/')}}
+
+jobs:
+
+  cross-compile:
+    name: "Cross Compilation"
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Set up F Prime
+        uses: nasa/fprime-actions/external-repository-setup@devel
+        with:
+          target_repository: fprime-community/fprime-sensors-reference
+
+      - name: Cross compile
+        uses: nasa/fprime-actions/build-with-aarch64-toolchain@devel
+        with:
+          toolchain-url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.2-2020.11/binrel/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu.tar.xz
+
+      - name: Prepare artifacts
+        run: |
+          mkdir -p build-artifacts-soak
+          cp -r ./build-artifacts build-artifacts-soak
+          cp ./lib/fprime/.github/actions/soak-test/soak_monitor.py build-artifacts-soak
+
+      - name: 'Archive Build Artifacts'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-soak
+          path: build-artifacts-soak
+          retention-days: 5
+
+  deploy-service:
+    name: "Deploy as System Service"
+    runs-on: [apple-ci]
+    needs: cross-compile
+
+    steps:
+      - name: "Artifacts Download"
+        uses: actions/download-artifact@v5
+        with:
+          name: build-artifacts-soak
+
+      - name: "Stop Services"
+        shell: bash
+        run: |
+          ls
+
